@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using System.IO;
+using System.Collections;
 
 namespace CMD_IP_Config
 {
@@ -15,8 +16,10 @@ namespace CMD_IP_Config
         /// Path of Output File
         /// </summary>
         public static string Path;
-        #endregion
 
+        public static string SecondPath = @".\output.txt";
+        #endregion
+        
         #region Run Commands
         /// <summary>
         /// Running Defined Command
@@ -40,17 +43,35 @@ namespace CMD_IP_Config
         /// Write Output on Console 
         /// </summary>
         /// <param name="path"></param>
-        static public void ShowInfo(string path)
+        static public string ShowInfo(string path)
         {
             StreamReader streamReader = new StreamReader(path);
             var context = new string[30];
             context = File.ReadAllLines(path);
 
+            string output = "";
             foreach (var item in context)
             {
                 if (item.Contains("IPv4 Address") || item.Contains("Subnet Mask") || item.Contains("Default Gateway"))
+                {
                     Console.WriteLine(item);
+                    output += item + Environment.NewLine;
+                }
             }
+            return output;
+        }
+        #endregion
+
+        #region Write Result in file
+        /// <summary>
+        /// Write output to File
+        /// </summary>
+        /// <param name="text"></param>
+        static public void WriteToFile(string text)
+        {
+            var streamWriter = new StreamWriter(SecondPath);
+            streamWriter.Write(text);
+            streamWriter.Close();
         }
         #endregion
 
@@ -62,7 +83,7 @@ namespace CMD_IP_Config
         static void Main(string[] args)
         {
             RunCommand("ipconfig > context.txt");
-            ShowInfo(Path);
+            WriteToFile(ShowInfo(Path));
 
             Console.WriteLine("Jobs Done!");
             Console.ReadKey();
