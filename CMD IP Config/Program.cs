@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Diagnostics;
 using System.IO;
 using System.Collections;
+using System.Text.RegularExpressions;
 
 namespace CMD_IP_Config
 {
@@ -17,9 +18,12 @@ namespace CMD_IP_Config
         /// </summary>
         public static string Path;
 
+        /// <summary>
+        /// Output Path
+        /// </summary>
         public static string SecondPath = @".\output.txt";
         #endregion
-        
+
         #region Run Commands
         /// <summary>
         /// Running Defined Command
@@ -40,24 +44,25 @@ namespace CMD_IP_Config
 
         #region Show Result
         /// <summary>
-        /// Write Output on Console 
+        /// Write Output on Console
         /// </summary>
         /// <param name="path"></param>
         static public string ShowInfo(string path)
         {
             StreamReader streamReader = new StreamReader(path);
-            var context = new string[30];
-            context = File.ReadAllLines(path);
 
-            string output = "";
-            foreach (var item in context)
+            var context = File.ReadAllText(path);
+            var output = "";
+
+            MatchCollection matches =
+                Regex.Matches(context, @"\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b");
+
+            for (int i = 0; i < matches.Count; i++)
             {
-                if (item.Contains("IPv4 Address") || item.Contains("Subnet Mask") || item.Contains("Default Gateway"))
-                {
-                    Console.WriteLine(item);
-                    output += item + Environment.NewLine;
-                }
+                output += matches[i].Value + Environment.NewLine;
             }
+
+            Console.WriteLine(output);
             return output;
         }
         #endregion
